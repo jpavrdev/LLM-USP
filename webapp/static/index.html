@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GPT PT-BR v6</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-head">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3v4"/><path d="M12 17v4"/><path d="M3 12h4"/><path d="M17 12h4"/>
+                        <path d="M5.6 5.6l2.8 2.8"/><path d="M15.6 15.6l2.8 2.8"/>
+                        <path d="M5.6 18.4l2.8-2.8"/><path d="M15.6 8.4l2.8-2.8"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <div class="brand-title">GPT PT-BR</div>
+                    <div class="brand-sub">v6 · local</div>
+                </div>
+            </div>
+            <button id="new-chat" class="btn-ghost" title="Nova conversa" aria-label="Nova conversa">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+        </div>
+
+        <nav class="history" id="history-list" aria-label="Conversas">
+            <!-- conversas anteriores aparecem aqui -->
+        </nav>
+
+        <div class="sidebar-foot">
+            <details class="params">
+                <summary>Parâmetros de geração</summary>
+                <label class="slider">
+                    <span>Temperatura <em id="temp-val">0.80</em></span>
+                    <input type="range" id="temperature" min="0.1" max="1.5" step="0.05" value="0.8" />
+                </label>
+                <label class="slider">
+                    <span>Top-K <em id="topk-val">50</em></span>
+                    <input type="range" id="top_k" min="0" max="200" step="1" value="50" />
+                </label>
+                <label class="slider">
+                    <span>Máx. tokens <em id="max-val">200</em></span>
+                    <input type="range" id="max_new_tokens" min="20" max="1000" step="10" value="200" />
+                </label>
+            </details>
+
+            <button id="theme-toggle" class="btn-ghost wide" aria-label="Alternar tema">
+                <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <span class="theme-label">Tema</span>
+            </button>
+            <div class="model-info" id="model-info">carregando…</div>
+        </div>
+    </aside>
+
+    <main class="chat">
+        <header class="chat-head">
+            <div class="chat-title">Nova conversa</div>
+            <div class="chat-badge" id="device-badge">·</div>
+        </header>
+
+        <div class="messages" id="messages">
+            <div class="welcome">
+                <div class="welcome-mark">
+                    <svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="32" cy="32" r="28"/>
+                        <path d="M22 26c3-4 6-6 10-6s7 2 10 6"/>
+                        <path d="M22 38c3 4 6 6 10 6s7-2 10-6"/>
+                    </svg>
+                </div>
+                <h1>Olá — eu sou sua LLM local</h1>
+                <p>Pergunte algo em português. Modelo Tucano-1b1-Instruct (PUCRS, 1.1B parâmetros).</p>
+                <div class="suggestions">
+                    <button class="suggestion" data-prompt="O que é inteligência artificial?">O que é inteligência artificial?</button>
+                    <button class="suggestion" data-prompt="Como funciona a fotossíntese?">Como funciona a fotossíntese?</button>
+                    <button class="suggestion" data-prompt="Escreva uma breve história sobre um astronauta que descobre um planeta habitado.">Escreva uma breve história sobre um astronauta…</button>
+                    <button class="suggestion" data-prompt="Liste três dicas práticas para melhorar o foco no trabalho.">Liste três dicas para melhorar o foco no trabalho</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="composer">
+            <form id="composer-form" class="composer-form">
+                <textarea
+                    id="input"
+                    placeholder="Pergunte algo em português…"
+                    rows="1"
+                    autocomplete="off"
+                    spellcheck="true"
+                ></textarea>
+                <button type="submit" id="send" class="btn-send" aria-label="Enviar">
+                    <svg class="icon-send" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>
+                    </svg>
+                    <svg class="icon-stop" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                        <rect x="5" y="5" width="14" height="14" rx="2"/>
+                    </svg>
+                </button>
+            </form>
+            <div class="composer-hint">
+                <kbd>Enter</kbd> envia · <kbd>Shift</kbd>+<kbd>Enter</kbd> quebra linha · modelo roda <span id="device-text">localmente</span>
+            </div>
+        </footer>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

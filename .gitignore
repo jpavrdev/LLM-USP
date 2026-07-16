@@ -1,4 +1,26 @@
-.venv
+# Ambientes virtuais
+.venv/
+venv/
+
+# Pesos / checkpoints de modelo (NUNCA commitar)
 *.pth
-data
-outputs
+*.safetensors
+*.bin
+*.ckpt
+checkpoint_*.pth
+tucano_sft/
+
+# Python (bytecode e caches)
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Dados e saídas grandes
+data/
+outputs/
+
+# Claude Code (estado local)
+.claude/
