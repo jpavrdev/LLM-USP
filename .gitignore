@@ -22,5 +22,11 @@ __pycache__/
 data/
 outputs/
 
+# Índice RAG gerado (build_rag_index.py) e logs
+rag/*.faiss
+rag/*.parquet
+rag/manifest.json
+*.log
+
 # Claude Code (estado local)
 .claude/

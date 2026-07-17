@@ -62,6 +62,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--max-articles", type=int, default=100_000,
                     help="Limite de artigos a processar (default 100k)")
+    ap.add_argument("--max-chunks-per-article", type=int, default=3,
+                    help="Máximo de chunks por artigo (os primeiros têm o cabeçalho/intro, mais relevantes)")
     ap.add_argument("--batch-size", type=int, default=64)
     args = ap.parse_args()
 
@@ -89,7 +91,7 @@ def main():
     all_chunks: list[dict] = []
     for ci, idx in enumerate(valid_indices):
         ex = ds[idx]
-        for c in chunk_article(ex["title"], ex["text"]):
+        for c in chunk_article(ex["title"], ex["text"])[:args.max_chunks_per_article]:
             c["url"] = ex.get("url", "")
             c["doc_idx"] = idx
             all_chunks.append(c)

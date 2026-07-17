@@ -151,6 +151,27 @@ function bindSuggestions() {
 bindSuggestions();
 
 // ---------- Renderização de mensagens ----------
+function buildSourcesEl(sources) {
+    const el = document.createElement("div");
+    el.className = "sources";
+    const label = document.createElement("span");
+    label.className = "sources-label";
+    label.textContent = "Fontes (Wikipedia):";
+    el.appendChild(label);
+    sources.forEach((s) => {
+        const a = document.createElement(s.url ? "a" : "span");
+        a.className = "source-link";
+        a.textContent = s.title;
+        if (s.url) {
+            a.href = s.url;
+            a.target = "_blank";
+            a.rel = "noopener";
+        }
+        el.appendChild(a);
+    });
+    return el;
+}
+
 function appendMessageEl(msg) {
     const wrap = document.createElement("div");
     wrap.className = `message ${msg.role}`;
@@ -172,6 +193,9 @@ function appendMessageEl(msg) {
     const body = document.createElement("div");
     body.className = "bubble-body";
     body.textContent = msg.content;
+    if (msg.sources && msg.sources.length) {
+        body.appendChild(buildSourcesEl(msg.sources));
+    }
 
     bubble.appendChild(author);
     bubble.appendChild(body);
@@ -273,9 +297,15 @@ async function streamCompletion(prompt, assistantMsg, bodyEl) {
                 if (payload === "[DONE]") break;
 
                 try {
-                    const { delta } = JSON.parse(payload);
-                    if (delta) {
-                        acc += delta;
+                    const data = JSON.parse(payload);
+                    if (data.sources) {
+                        assistantMsg.sources = data.sources;
+                        if (!bodyEl.querySelector(".sources")) {
+                            bodyEl.insertBefore(buildSourcesEl(data.sources), bodyEl.firstChild);
+                        }
+                        scrollToBottom();
+                    } else if (data.delta) {
+                        acc += data.delta;
                         streamText.textContent = acc;
                         scrollToBottom();
                     }
@@ -284,13 +314,13 @@ async function streamCompletion(prompt, assistantMsg, bodyEl) {
         }
 
         assistantMsg.content = acc;
-        bodyEl.textContent = acc;
+        bodyEl.querySelector(".cursor")?.remove();
     } catch (err) {
         if (err.name === "AbortError") {
-            // Usuário parou: mantém o que já gerou.
             const acc = bodyEl.querySelector(".stream-text")?.textContent || "";
             assistantMsg.content = acc;
-            bodyEl.textContent = acc + " ⏹";
+            bodyEl.querySelector(".cursor")?.remove();
+            bodyEl.querySelector(".stream-text").textContent = acc + " ⏹";
         } else {
             bodyEl.textContent = `Erro: ${err.message}`;
             assistantMsg.content = `[erro] ${err.message}`;
